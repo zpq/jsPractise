@@ -1,0 +1,227 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    </head>
+    <script type="text/javascript" src="http://libs.baidu.com/jquery/1.9.0/jquery.js"></script>
+    <style>
+        *{padding:0;margin:0;}
+        body{
+            color:green;
+        }
+        #wrap{
+            width:500px;
+            height:710px;
+            border:1px solid #abcdef;
+            margin: 0 auto;
+            position:relative;
+        }
+        #content{
+            width:440px;
+            height:660px;
+            border:1px solid blue;
+            position:absolute;
+            left:20px;
+            top:50px;
+        }
+        #function{
+            width:500px;
+            height:50px;
+        }
+        .block{
+            width:20px;
+            height:20px;
+            float:left;
+            border:1px solid grey;
+            background:#abcdef;
+        }
+
+        .turn {
+            background: white;
+        }
+
+        .boom{
+            background :black;
+        }
+
+        .flag{
+            background:red;
+        }
+
+    </style>
+
+    <body>
+        <div id="wrap">
+            <div id="function">
+                <button id='start'>start</button>
+                <button id='restart'>restart</button>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                your points:<span></span>
+            </div>
+            <div id="content">
+
+            </div>
+        </div>
+    </body>
+    <script>
+
+        var Boom = new Array();
+
+        function cM() {
+            var oDiv = "";
+            for (var i = 0; i < 600; i++) {
+                oDiv = document.createElement('div');
+                oDiv.className = 'block';
+                oDiv.isflag = 0;
+                oDiv.isboom = 0;
+                oDiv.isturn = 0;
+                oDiv.num = i;
+                oDiv.x = i % 20;
+                oDiv.y = parseInt(i / 20);
+                document.getElementById('content').appendChild(oDiv);
+            }
+        }
+
+        function createBoom(n) {
+            var obj = document.getElementById('content').getElementsByTagName('div');
+            var i = 0;
+            var bm = 0
+            while (i < n) {
+                bm = parseInt(Math.random() * 600);
+                if (!in_array(Boom, bm)) {
+                    Boom.push(bm);
+                    obj[bm].isboom = 1;
+                    i++;
+                }
+            }
+        }
+
+        function in_array(arr, search) {
+            for (var i = 0; i < arr.length; i++) {
+                if (search == arr[i])
+                    return true;
+            }
+            return false;
+        }
+
+        function click() {
+            var aDiv = document.getElementById('content').getElementsByTagName('div');
+            for (var i = 0; i < aDiv.length; i++) {
+                aDiv[i].onmousedown = function(e) {
+                    e = e || window.event;
+                    if (e.button == 2) {//右键
+                        if (this.className != "block turn" && this.className != "block boom" && this.className != "block flag") {
+                            this.className = "block flag";
+                            this.isflag = 1;
+                        }
+                        else if (this.className == "block flag") {
+                            this.className = "block";
+                            this.isflag = 0;
+                        }
+                    } else {//左键
+                        if (this.isboom == 1 && this.flag != 1) {
+                            this.className = "block boom";
+                            alert('gg!');
+                        } else {
+                            this.className = "block turn";
+                            calculate(this.num);
+                        }
+                    }
+                    //judgeWin
+                    if (judgeWin()) {
+                        alert('you win!');
+                    }
+                }
+            }
+        }
+
+        function calculate(num) {
+            
+            var aDiv = document.getElementById('content').getElementsByTagName('div');
+            var bm = 0;
+            var x = this.x;
+            var y = this.y;
+//            alert(num)
+            var nx = 0;
+            var ny = 0;
+            var m = 0;
+//            switch (m){
+//                case 1:
+//                    nx = x%20 - 1;
+//                    ny = parseInt(x/20)-1;
+//                    if(nx>=0 && ny>=0){
+//                        if(aDiv[num-20-1].isboom == 1)
+//                            bm++;
+//                    }
+//                    break;
+//            }
+            if ((num - 20 - 1) >= 0) {
+                if (aDiv[num - 20 - 1].isboom == 1)
+                    bm++;
+            }
+            else if ((num - 20) >= 0) {
+                if (aDiv[num - 20].isboom == 1)
+                    bm++;
+            }
+            else if ((num - 19) >= 0) {
+                if (aDiv[num - 19].isboom == 1)
+                    bm++;
+            }
+            else if ((num - 1) >= 0) {
+                if (aDiv[num - 1].isboom == 1)
+                    bm++;
+            }
+            else if ((num + 1) >= 0) {
+                if (aDiv[num + 1].isboom == 1)
+                    bm++;
+            }
+            else if ((num + 19) >= 0) {
+                if (aDiv[num + 19].isboom == 1)
+                    bm++;
+            }
+            else if ((num + 20) >= 0) {
+                if (aDiv[num + 20].isboom == 1)
+                    bm++;
+            }
+            else if ((num + 20 + 1) >= 0) {
+                if (aDiv[num + 20 + 1].isboom == 1)
+                    bm++;
+            }           
+            aDiv[num].innerHTML = bm;
+        }
+
+        function judgeWin() {
+            var space = 0;
+            var aDiv = document.getElementById('content').getElementsByTagName('div');
+            for (var i = 0; i < aDiv.length; i++) {
+                if (aDiv[i].className == "block")
+//                    space++;
+                    return false;
+            }
+            var v = true;
+            if (space == 0) {//全部点完了
+                for (var i = 0; i < aDiv.length; i++) {
+                    if (aDiv[i].isboom == 1 && aDiv[i].isflag == 0) {
+                        v = false;
+                    }
+                }
+                return v;
+            }
+        }
+
+
+        window.onload = function() {
+            document.oncontextmenu = function() {
+                return false
+            }
+            cM();
+            createBoom(40);
+            click();
+        }
+
+
+
+    </script>
+
+

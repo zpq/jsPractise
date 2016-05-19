@@ -1,0 +1,121 @@
+<!doctype html>
+<html>
+<head>
+	<title>sun</title>
+</head>
+
+<body>
+	<canvas id="canvas" width="1000" height="1000" style="background:#000">your browers is too old!</canvas>
+	<script>
+		var canvas = document.getElementById("canvas");
+		var c = canvas.getContext("2d");
+		
+		var time = 0;//天数
+
+		function sun() {
+
+			//clear context
+			c.clearRect(0,0,1000,1000);
+			
+			//draw sun
+			c.strokeStyle = "#f90";
+			c.beginPath();
+			c.arc(500,500,20,0,360,false);
+			c.closePath();
+
+			//(内圆心x,内圆心y,内半径,外圆心x,外圆心y,外半径)
+			var sunColor = c.createRadialGradient(500,500,0,500,500,20);
+			sunColor.addColorStop(0,"#f00");
+			sunColor.addColorStop(1,"#f90");
+			c.fillStyle = sunColor;
+			c.fill();
+			c.stroke();
+			
+			//调用行星公转函数
+			mercury();
+			venus();
+			earth();
+			mars();
+			jupiter();
+			saturn();
+			uranus();
+			neptune();
+
+			time++;//天数+1
+		}
+		
+		/**
+		 *@公转函数 return void
+		 * @tr:公转半径 
+		 * @t:公转周期	
+		 * @r:自身半径
+		 * @ci:内半径颜色
+		 * @co:外半径颜色
+		 */
+		function round_sun(tr, t, r, ci, co){
+			
+			//draw planet tunnel
+			c.strokeStyle = "#fff";
+			c.beginPath();
+			c.arc(500,500,tr,0,360,false);
+			c.closePath();
+			c.stroke();
+			
+			//draw planet
+			c.save();
+			c.translate(500,500);
+			c.rotate(time*360/t*Math.PI/180);
+			c.strokeStyle = co;
+			c.beginPath();
+			c.arc(0,-tr,r,0,360,false);
+			c.closePath();
+			var pColor = c.createRadialGradient(0,-tr,0,0,-tr,r);
+			pColor.addColorStop(0,ci);
+			pColor.addColorStop(1,co);
+			c.fillStyle = pColor;
+			c.fill()
+			c.stroke();
+			c.restore();
+				
+		}
+
+		
+		function mercury() {
+			round_sun(40,87.7,5,"#A69697","#5C3E40");
+		}
+
+		function venus() {
+			round_sun(60,224.701,10,"#C4BBAC","#1F1315");
+		}
+
+		function earth() {
+			round_sun(100,365,15,"#78B1E8","#050C12");
+		}
+
+		function mars() {
+			round_sun(150,686.98,15,"#CEC9B6","#76422D");
+		}	
+		
+		function jupiter() {
+			round_sun(220,4332.589,40,"#C0A48E","#322222");
+		}
+
+		function saturn() {
+			round_sun(320,10759.5,30,"#F7F9E3","#5C4533");
+		}
+
+		function uranus() {
+			round_sun(420,30799.095,25,"#A7E1E5","#19243A");
+		}
+
+		function neptune() {
+			round_sun(480,164.8*365,20,"#0661B2","#1E3B73");
+		}
+		
+		//dong qi lai!
+		setInterval(sun,20);
+
+	</script>
+</body>
+
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<script src="http://libs.baidu.com/jquery/1.9.0/jquery.js"></script>
+</head>
+<body>
+<style>
+
+    #session{
+        width:200px;height:100px;
+        border:1px solid grey;
+        display:none;
+        position: absolute;
+        background:#abcdef;
+    }
+    #session div{
+        width:200px;height:50px;
+        text-align: center;
+        position: relative;
+        top:0;
+    }
+    #session button{
+        width:100px;height:50px;
+        position: relative;
+        top:50px;
+        left:50px;
+    }
+    
+    
+</style>
+
+<script>
+
+    $(function(){
+        setInterval("a()",100);   		
+    });
+
+    function a(){
+        var w = $(document).width() - 200;
+        var h = $(document).height() - 100;
+        var s = $("#session");
+        var rw = w*Math.random();
+        var rh = h*Math.random();
+        $("body").append(s.clone(true));
+        s.css("top",rh);
+        s.css("left",rw);
+        //s.css("z-index",i++);
+        s.show();
+        s.children("button").click(function(){
+        	$(this).parent().remove();
+       });
+    }
+  
+</script>    
+
+<div id="session">
+    <div>javascript</div>
+    <button>close</button>
+</div>
+
+	
+</body>
+</html>

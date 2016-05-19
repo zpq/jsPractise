@@ -1,0 +1,315 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    </head>
+    <script type="text/javascript" src="http://libs.baidu.com/jquery/1.9.0/jquery.js"></script>
+    <style>
+        #wrap{
+            width:800px;
+            height:400px;
+            position: relative;
+        }
+        #p{
+            width:200px;
+            height:200px;
+            float: left;
+        }
+        #b{
+            width:200px;
+            height:200px;
+            float:right;
+        }
+
+        #go{
+            width:100px; 
+            height:100px;
+            margin: 0 auto;
+        }
+        
+        #go button{
+            width:100px; 
+            height:100px;
+        }
+
+        table td{
+            border:1px solid;
+        }
+
+    </style>
+
+    <body>
+
+        <select name="select" id="select">
+            <option>...</option>
+            <option>dk</option>
+            <option>xd</option>
+            <option>fq</option>
+            <option>fz</option>
+            <option>ws</option>
+        </select>
+        <br>
+
+            <div id="wrap">
+
+                <div id="p">
+                    <table>
+                        <tr><td>health</td><td id="p1"></td></tr>
+                        <tr><td>left_health</td><td id="p2"></td></tr>
+                        <tr><td>hpb</td><td id="p3"></td></tr>
+                        <tr><td>by last damage</td><td id="p4"></td></tr>
+                        <tr><td>per en damage</td><td id="p5"></td></tr>
+                    </table>
+                </div>
+
+                <div id="b">
+                    <table>
+                        <tr><td>health</td><td id="b1"></td></tr>
+                        <tr><td>left_health</td><td id="b2"></td></tr>
+                        <tr><td>by last damage</td><td id="b3"></td></tr>
+                    </table>
+                </div>
+
+
+                <div id="go">
+                    <button>go</button>
+                </div>
+
+            </div>
+
+    </body>
+
+
+    <script type="text/javascript">
+
+        var fz = {
+            exp: 0,
+            level: function() {
+                return parseInt(this.exp / 100) + 1;
+            },
+            max_health: function() {
+                return 100 + this.level() * 10;
+            },
+            current_health: function() {
+                return 100 + this.level() * 10;
+            },
+            attack: function() {
+                return 15 + this.level() * 3.5;
+            },
+            double_damage:function(){
+                return 10 + this.level() * 0.5;
+            },
+            defense: function() {
+                return 30 + this.level() * 0.5;
+            },
+            hit: function() {
+                return 5 + this.level() * 0.3;
+            },
+            parry: function() {
+                return 5 + this.level() * 0.3;
+            },
+            block: function() {
+                return 10 + this.level() * 0.5;
+            },
+            wall_defense: function(){
+            	return this.defense()*1.5;
+            },
+        }
+
+        var dk = {
+            exp: 0,
+            level: function() {
+                return parseInt(this.exp / 100) + 1;
+            },
+            max_health: function() {
+                return 120 + this.level() * 13;
+            },
+            current_health: function() {
+                return 120 + this.level() * 13;
+            },
+            attack: function() {
+                return 10 + this.level() * 4;
+            },
+            double_damage:function(){
+                return 15 + this.level() * 0.5;
+            },
+            defense: function() {
+                return 20 + this.level() * 0.45;
+            },
+            hit: function() {
+                return 5 + this.level() * 0.3
+            },
+            parry: function() {
+                return 8 + this.level() * 0.4
+            },
+            block: function() {
+                return 0;
+            },
+        }
+
+        var xd = {
+            exp: 0,
+            level: function() {
+                return parseInt(this.exp / 100) + 1;
+            },
+            max_health: function() {
+                return 150 + this.level() * 14;
+            },
+            current_health: function() {
+                return 150 + this.level() * 14;
+            },
+            attack: function() {
+                return 10 + this.level() * 3.85;
+            },
+            double_damage:function(){
+                return 10 + this.level() * 0.5;
+            },
+            defense: function() {
+                return 30 + this.level() * 0.5;
+            },
+            hit: function() {
+                return 10 + this.level() * 0.3
+            },
+            parry: function() {
+                return 0
+            },
+            block: function() {
+                return 0;
+            },
+        }
+
+        var b = {
+            exp:30,
+            level: 1,
+            max_health: function() {
+                return 150 + this.level * 22;
+            },
+            current_health: function() {
+                return 150 + this.level * 22;
+            },
+            attack: function() {
+                return 10 + this.level * 6;
+            },
+            defense: function() {
+                return 0 + this.level * 1;
+            },
+//            hit:function (){
+//                 return  1+this.level*0.5
+//            },
+//            parry:function (){
+//                return  5+this.level*0.5
+//            },
+//            block:function (){
+//                return  5+this.level*0.5
+//            },     
+        }
+
+        function  PtoB(a, d, dm) {
+            var n = parseInt(Math.random()*100);
+            if(n <= dm){
+                return 2 * a * (1 - d / 100)
+            }else{
+                return a * (1 - d / 100)
+            }
+        }
+
+        function BtoP(a, d, h, p, b) {
+            var n = parseInt(Math.random() * 100);
+            if ((h + p + b) < 100) {
+                if (n <= h) {
+                    return 0;
+                } else if (n <= (h + p)) {
+                    return 0;
+                } else if (n <= (h + p + b)) {
+                    return a * (1 - d / 100) * (1 - 0.3);
+                } else {
+                    return a * (1 - d / 100);
+                }
+            } else {
+                if (n <= h) {
+                    return 0;
+                } else if (n <= (h + p)) {
+                    return 0;
+                } else if (n <= (h + p + b)) {
+                    return a * (1 - d / 100) * (1 - 0.3);
+                }
+            }
+        }
+
+        function init(p, b) {
+            $('#p1').html(p.max_health());
+            $('#p2').html(p.current_health());
+            $('#p3').html(p.hit() + "+" + p.parry() + "+" + p.block());
+            $('#p4').html(0);
+            $('#b1').html(b.max_health());
+            $('#b2').html(b.current_health());
+            $('#b3').html(0);
+        }
+
+
+        $(function() {
+            fz = dk;
+            b.level = 50;
+            fz.exp = 4900;
+            init(fz, b);
+            var isover = true;
+            var i = 0;
+            var damage;
+            var pch = fz.current_health();
+            var bch = b.current_health();
+            $('button').click(function() {
+                if(!isover){
+                    alert('already over!');
+                    return;
+                }
+                if (i % 2 == 0) {
+                    damage = PtoB(fz.attack(), b.defense(),fz.double_damage());
+                    bch = bch - damage;
+                    $('#b2').html(bch);
+                    $('#b3').html(damage);
+                    if(bch > 0)
+                        alert('you make ' + damage + " damage to boss");
+                    else{ 
+                        $('#p5').html((fz.max_health()-pch)/(i/2));
+                        alert("you win this fight and gain "+b.exp+" exp");
+                        fz.exp += b.exp;
+                        isover = false;
+                    }
+                    i++;
+                } else {
+                    damage = BtoP(b.attack(), fz.defense(), fz.hit(), fz.parry(), fz.block());
+                    pch = pch - damage;
+                    $('#p2').html(pch);
+                    $('#p4').html(damage);
+                    if(pch > 0)
+                        alert('boss make ' + damage + " damage to you");
+                    else{
+                        $('#p5').html((fz.max_health()-pch)/(i/2));
+                        alert("you loss the fight and loss "+(b.exp/2)+" exp");
+                        fz.exp -= (b.exp/2);
+                        isover = false;
+                    }
+                    i++;
+                }
+            });
+
+        });
+
+
+
+        //alert(BtoP(b.attack(),fz.defense(),fz.hit(),fz.parry(),fz.block()));
+
+    </script>
+
+
+
+
+
+
+
+
+
+</html>
+
+
+

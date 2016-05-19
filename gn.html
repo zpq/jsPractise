@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1.0"> 
+        <title>guess number</title>
+    </head>
+    <script src="http://libs.baidu.com/jquery/1.9.0/jquery.js"></script>
+    <script>
+        
+        var arr = new Array();
+        var A = 0;
+        var B = 0;
+        var C = 0;
+        
+        function init() {
+            arr.length = 0;
+            A = 0;
+            B = 0;
+            C = 0;
+            cn();
+        }
+
+        function cn() {
+            while (arr.length < 4) {
+                var n = parseInt(Math.random() * 10);
+                if (in_array(n, arr)) {
+                    cn();
+                } else {
+                    arr.push(n);
+                }
+            }
+            //document.getElementsByTagName("span")[0].innerHTML = arr;
+        }
+
+        function judge() {
+            var post = document.getElementById("gn").value;
+            for (var i = 0; i < arr.length; i++) {
+
+                if (post.substr(i, 1) == arr[i]) {
+                    A++;
+                } else {
+                    if (in_array(post.substr(i, 1), arr)) {
+                        B++;
+                    }
+                }
+            }
+            document.getElementsByTagName("p")[0].innerHTML = A + "A" + B + "B";
+			var result = A + "A" + B + "B";
+            A = 0;
+            B = 0;
+            C++;
+            if(A == 4){
+                alert("ok");
+                location.replace(location); 
+            }else{
+                var object = $("<p></p>");
+                object.html(C+"、    "+post+"      "+ result);
+                $("div").append(object);
+                if(C!=7){
+                    alert(7-C+" chances left");
+                }else{
+                    alert("over!The right number is "+arr.join("")); 
+                    location.replace(location); 
+                }
+            }
+        }
+
+
+        function in_array(search, arr) {
+            for (var i = 0; i < arr.length; i++) {
+                if (search == arr[i])
+                    return true;
+            }
+            return false;
+        }
+
+        function isCp(s) {
+            for (var i = 0; i < s.length; i++) {
+                for (var j = i+1; j < s.length; j++) {
+                    if (s[i] == s[j]) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        window.onload = function() {
+            init();
+            var btn = document.getElementsByTagName('button')[0];
+            var v = document.getElementById("gn");
+            btn.onclick = function() {
+                if (v.value.length < 4 || isCp(v.value)) {
+                    alert('please enter four number of no duplicated');
+                } else
+                    judge();
+            }
+        }
+
+    </script>
+
+    <body>
+        <input type="text" id="gn" maxlength="4" onkeyup="value = value.replace(/[^\d]/g, '')" />
+        <button>button</button>
+        <p></p>
+        <span></span>
+        <hr />
+        <div></div>
+    </body>
+</html>

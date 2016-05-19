@@ -1,0 +1,290 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    </head>
+    <script type="text/javascript" src="http://libs.baidu.com/jquery/1.9.0/jquery.js"></script>
+    <style>
+        *{padding:0;margin:0;}
+        #wrap{
+            width:500px;
+            height:710px;
+            border:1px solid #abcdef;
+            margin: 0 auto;
+            position:relative;
+        }
+        #content{
+            width:440px;
+            height:660px;
+            border:1px solid blue;
+            position:absolute;
+            left:20px;
+            top:50px;
+        }
+        #function{
+            width:500px;
+            height:50px;
+        }
+        .block{
+            width:20px;
+            height:20px;
+            float:left;
+            border:1px solid grey;
+            background:white;
+        }
+        .RB{
+            background: #abcdef;
+        }
+        .CB{
+            background: red;
+        }
+
+    </style>
+    <body>
+        <div id="wrap">
+            <div id="function">
+                <button id='start'>start</button>
+                <button id='restart'>restart</button>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                your points:<span></span>
+            </div>
+            <div id="content">
+
+            </div>
+        </div>
+    </body>
+
+    <script>
+        var arrAll = new Array(
+                [[0, 0], [1, 0], [2, 0], [3, 0], 0],
+                [[1, -1], [0, 1], [1, 1], [1, 2], 1],
+                [[0, 0], [1, 0], [2, 0], [3, 0], 2],
+                [[1, -1], [0, 1], [1, 1], [1, 2], 3],
+                [[0, 0], [1, 0], [1, 1], [1, 2], 4],
+                [[0, 0], [1, 0], [1, 1], [1, 2], 5],
+                [[0, 0], [1, 0], [1, 1], [1, 2], 6],
+                [[0, 0], [1, 0], [1, 1], [1, 2], 7],
+                [[0, 0], [0, 1], [1, 1], [1, 2], 8],
+                [[0, 1], [1, 1], [-1, 2], [0, 2], 9],
+                [[0, 0], [0, 1], [1, 1], [1, 2], 10],
+                [[0, 1], [1, 1], [-1, 2], [0, 2], 11]
+
+                [[1, 0], [0, 1], [1, 1], [0, 2], 12],
+                [[0, 0], [1, 0], [1, 1], [2, 1], 13],
+                [[1, 0], [0, 1], [1, 1], [0, 2], 14],
+                [[0, 0], [1, 0], [1, 1], [2, 1], 15],
+                [[1, 0], [0, 1], [1, 1], [2, 1], 16],
+                [[1, 0], [1, 1], [1, 2], [2, 1], 17],
+                [[0, 1], [1, 1], [2, 1], [1, 2], 18],
+                [[1, 0], [0, 1], [1, 1], [1, 2], 19],
+                [[0, 0], [1, 0], [1, 1], [1, 2], 20],
+                [[2, 0], [0, 1], [1, 1], [2, 1], 21],
+                [[1, 0], [1, 1], [1, 2], [2, 2], 22],
+                [[0, 1], [1, 1], [2, 1], [0, 2], 23],
+                [[0, 0], [1, 0], [0, 1], [0, 2], 24],
+                [[-1, 1], [0, 1], [1, 1], [1, 2], 25],
+                [[0, 0], [0, 1], [-1, 2], [0, 2], 26],
+                [[-1, 0], [-1, -1], [0, 1], [1, 1], 27]
+                );
+
+        var arr = new Array(
+                [[0, 0], [1, 0], [2, 0], [3, 0], 0],//2,0
+                [[0, 0], [1, 0], [1, 1], [1, 2], 4],//1,0
+                [[0, 0], [0, 1], [1, 1], [1, 2], 8],
+                [[1, 0], [0, 1], [1, 1], [0, 2], 12],
+                [[1, 0], [0, 1], [1, 1], [2, 1], 16],
+                [[0, 0], [1, 0], [1, 1], [1, 2], 20],
+                [[0, 0], [1, 0], [0, 1], [0, 2], 24]
+                );
+
+        var B = new Array();
+        var TB = new Array();
+//        var offsetX = 0;
+//        var offsetY = 0;
+
+        function cM() {
+            var oDiv = "";
+            for (var i = 0; i < 600; i++) {
+                oDiv = document.createElement('div');
+                oDiv.className = 'block';
+                if (i < 40)
+                    oDiv.innerHTML = i;
+                oDiv.flag = 0;
+                oDiv.x = i % 20;
+                oDiv.y = parseInt(i / 20);
+                document.getElementById('content').appendChild(oDiv);
+            }
+        }
+
+        function keyListener() {
+            document.onkeydown = function(e) {
+                e = window.event || e;
+                switch (e.keyCode) {
+                    case 37:
+                        move('l');
+                        break;
+                    case 38:
+                        move('u');
+                        break;
+                    case 39:
+                        move('r');
+                        break;
+                    case 40:
+                        move('d');
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        function createBlock() {
+            var n = parseInt(Math.random() * 6);
+            var offset = 0;
+            B = arr[4];
+//            B = $.extend(true, {}, arr[n]);
+//            B = arr.slice(0,1);
+//            alert(B);
+            for (var i = 0; i < B.length - 1; i++) {
+                B[i][0] += offset;
+            }   
+            var cx = Math.round((B[0][0] + B[1][0] + B[2][0] + B[3][0])/4);
+            var cy = Math.round((B[0][1] + B[1][1] + B[2][1] + B[3][1])/4);      
+//            alert(cx+"---"+cy)
+            
+        }
+
+        function drawB(m) {
+            var arr = document.getElementById('content').getElementsByTagName('div');
+            if (m == 1) {
+                for (var i = 0; i < B.length - 1; i++) {
+                    arr[B[i][1] * 20 + B[i][0]].className = "block RB";
+                }
+            } else if (m == 2) {
+                for (var i = 0; i < B.length - 1; i++) {
+                    arr[B[i][1] * 20 + B[i][0]].className = "block CB";
+                }
+            } else {
+                for (var i = 0; i < B.length - 1; i++) {
+                    arr[B[i][1] * 20 + B[i][0]].className = "block";
+                }
+            }
+        }
+
+        function isHit(d) {
+            var arr = document.getElementById('content').getElementsByTagName('div');
+            var n = 0;
+            switch (d) {
+                case "l":
+                    for (var i = 0; i < B.length - 1; i++) {
+                        if ((((B[i][0]) % 20) - 1) < 0 || arr[B[i][1] * 20 + B[i][0] - 1].flag == 1)
+                            n++;
+                    }
+                    break;
+                case "r":
+                    for (var i = 0; i < B.length - 1; i++) {
+                        if ((((B[i][0]) % 20) + 1) > 19 || arr[B[i][1] * 20 + B[i][0] + 1].flag == 1)
+                            n++;
+                    }
+                    break;
+                case "d":
+                    for (var i = 0; i < B.length - 1; i++) {
+                        if ((B[i][1] + 1) > 29 || arr[(B[i][1] + 1) * 20 + B[i][0]].flag == 1)
+                            n++;
+                    }
+                    break;
+                case "u":
+                    for (var i = 0; i < B.length - 1; i++) {
+                        if (((TB[i][0] % 20) - 1) < 0 || ((TB[i][0] % 20) + 1) > 19 || (TB[i][1] + 1) > 29 || arr[TB[i][1] * 20 + TB[i][0] + 1].flag == 1)
+                            n++;
+                    }
+                    alert(n)
+                    break;
+            }
+            return n;
+        }
+
+        function move(d) {
+            drawB(0);
+            switch (d) {
+                case 'l':
+                    if (!isHit('l')) {
+                        for (var i = 0; i < B.length - 1; i++) {
+                            B[i][0]--;
+                        }
+                    }
+                    break;
+                case 'r':
+                    if (!isHit('r')) {
+                        for (var i = 0; i < B.length - 1; i++) {
+                            B[i][0]++;
+                        }
+                    }
+                    break;
+                case 'd':
+                    if (!isHit('d')) {
+                        for (var i = 0; i < B.length - 1; i++) {
+                            B[i][1]++;
+                        }
+                    }
+                    break;
+                case 'u':
+                    testrotate();
+                    if (!isHit('u')) {
+                        rotate();
+                    }
+                    break;
+                default:
+                    break;
+            }
+            drawB(1);
+            //clear row
+
+        }
+
+        //Math.round((tmpBlock[0].x + tmpBlock[1].x + tmpBlock[2].x + tmpBlock[3].x)/4);  
+//        arrayObj.concat();
+        function xz(){
+            
+        }
+        
+        
+        function testrotate() {
+            var type = B[4];
+            TB = arrAll[type];
+            var nType = type++;
+            if (nType % 4 == 0) {
+                nType = type - 4;
+                nType = nType < 0 ? 3 : nType
+            }
+            TB = arrAll[nType];
+        }
+
+        function rotate() {
+            var type = B[4];
+            var nType = type++;
+            if (nType % 4 == 0) {
+                nType = type - 4;
+                nType = nType < 0 ? 3 : nType
+            }
+            B = arrAll[nType];
+        }
+
+        function init() {
+            cM();
+            createBlock();
+            drawB(1);
+            keyListener();
+        }
+
+        window.onload = function() {
+            init();
+
+        };
+
+    </script>
+
+
+
+</html>
