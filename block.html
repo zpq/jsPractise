@@ -51,6 +51,14 @@
             <div id="function">
                 <button id='start'>start</button>
                 <button id='restart'>restart</button>
+                <select id='hard'>
+                    <option selected="selected" value=0>手惨<option>
+                    <option value=1>菜鸟<option>
+                    <option value=2>入门<option>
+                    <option value=3>困难<option>
+                    <option value=4>地狱<option> 
+                    <option value=5>自杀<option>       
+                </select>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 your points:<span></span>
@@ -98,7 +106,9 @@
         );
         
         // y * 20 + x = index
+        var inGoing = false;
         var Hard = [1000,500,300,200,100,50];
+        var hardIndex = 0;
         var cindex = 0; //记录方块状态0到27，总共28种状态
         var offsetX = 10;
         var offsetY = 0;
@@ -108,7 +118,7 @@
         
         function cM() {
             var oDiv = "";
-            for (var i = 0; i < 600; i++) {
+            for (var i = 0; i < 20 * 30; i++) {
                 oDiv = document.createElement('div');
                 oDiv.className = 'block';
                 // if (i < 40)
@@ -125,16 +135,16 @@
                 e = window.event || e;
                 switch (e.keyCode) {
                     case 37:
-                        move('l');
+                        move('l', 0);
                         break;
                     case 38:
-                        move('u');
+                        move('u', 0);
                         break;
                     case 39:
-                        move('r');
+                        move('r', 0);
                         break;
                     case 40:
-                        move('d');
+                        move('d', 0);
                         break;
                     default:
                         break;
@@ -142,7 +152,7 @@
             }
         }
         
-        function move(d) {
+        function move(d, auto) {
             drawB(0);
             switch (d) {
                 case 'l':
@@ -164,23 +174,33 @@
                     }
                     break;
                 case 'd':
-                    // console.log(B); 
-                    if (!isHit('d')) {
-                        // console.log(1)
-                        for (var i = 0; i < B.length; i++) {
-                            B[i][1]++;
-                        }
-                        offset[1]++;
-                        drawB(1);
-                        
-                    } else {
-                        // console.log(2)
+                    if (!auto) { //非自动下落时
+                        moveDown();
                         drawB(2);
-                        //clear row
-                        offset = [offsetX, offsetY]; //!注意顺序    
-                        createBlock();               //!注意顺序   
+                        clearRows();
+                        offset = [offsetX, offsetY];
+                        createBlock();  
+                    } else {
+                        if (!isHit('d')) { //
+                            for (var i = 0; i < B.length; i++) {
+                                B[i][1]++;
+                            }
+                            offset[1]++;
+                            drawB(1);
+                        } else {
+                            drawB(2);
+                            clearRows();
+                            if(isGameOver()) {
+                                alert("game over");
+                                clearInterval(timer);
+                                document.onkeydown = null;
+                                return;
+                            } else {
+                                offset = [offsetX, offsetY]; 
+                                createBlock(); 
+                            }
+                        }
                     }
-                    // console.log(B); 
                     break;
                 case 'u':
                     rotate();
@@ -191,8 +211,39 @@
             }
         }
         
+        function isGameOver() {
+            for(let i=0;i<B.length;i++) {
+                if(B[i][1] == 0) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        
         function clearRows() {
+            // clearInterval('timer');
+            let cbs = document.getElementsByClassName('CB');
+            let len = cbs.length;
             
+        }
+        
+        //手动下落
+        function moveDown() {
+            let c = 0;
+            while(true) {
+                if (!isHit('d')) {
+                    drawB(0);
+                    for (var i = 0; i < B.length; i++) {
+                        B[i][1]++;
+                    }
+                    offset[1]++;
+                    drawB(1);
+                    c++;
+                } else {
+                    break;
+                }
+            }
         }
         
         //碰撞检测
@@ -223,8 +274,8 @@
             return n;
         }
         
+        //旋转方法
         function rotate() {
-
             var temp = [];
             var nindex;//下一个状态
             if (((cindex + 1) % 4) == 0) {
@@ -272,7 +323,8 @@
 
         //创建一个新的方块
         function createBlock() {
-            cindex = parseInt(Math.random() * 28)
+            // cindex = parseInt(Math.random() * 27)
+            cindex = 12
             B = [];
             qCopy(arrAll[cindex], B);
             for (var i = 0; i < B.length; i++) {
@@ -283,14 +335,12 @@
         }
 
         function drawB(m) {
-            clearInterval(timer);
             var arr = document.getElementById('content').getElementsByTagName('div');
             if (m == 1) { //画出当前激活的方块
                 for (var i = 0; i < B.length; i++) {
                     arr[B[i][1] * 20 + B[i][0]].className = "block RB";
                 }
             } else if (m == 2) { //画出固定后的方块
-                // console.log(B)
                 for (var i = 0; i < B.length; i++) {
                     arr[B[i][1] * 20 + B[i][0]].className = "block CB";
                     arr[B[i][1] * 20 + B[i][0]].flag = 1;
@@ -301,29 +351,63 @@
                     arr[B[i][1] * 20 + B[i][0]].flag = 0;
                 }
             }
-            timer = setInterval("move('d')", Hard[1])
         }
         
         
+        function removeMap() {
+            var content = document.getElementById("content");
+            while(content.hasChildNodes()) //当div下还存在子节点时 循环继续
+            {
+                content.removeChild(content.firstChild);
+            }
+        }
+        
+        function clearConfig() {
+             cindex = 0;
+             offset = [offsetX, offsetY];
+             B = new Array();
+        }
+        
         function init() {
-            console.log('start...');
+            console.log('init...');
             cM();
-            keyListener();
-            createBlock();
-            timer = setInterval("move('d')", Hard[1]);
         }
         
         window.onload = function() {
             init();
         }
         
-        // function start() {
-            
-        // }
+        function start() {
+            if(isGoing)
+                return;
+            isGoing = true;
+            keyListener();
+            createBlock();
+            timer = setInterval("move('d', 1)", Hard[hardIndex]);
+        }
         
-        // document.getElementById('start').click = function() {
-        //     start();
-        // }
+        function restart() {
+            clearInterval(timer);
+            clearConfig();
+            removeMap();
+            cM();
+            keyListener();
+            createBlock();
+            isGoing = true;
+            timer = setInterval("move('d', 1)", Hard[hardIndex]);
+        }
+        
+        document.getElementById('start').onclick = function() {
+            start();
+        }
+        
+        document.getElementById('restart').onclick = function() {
+            restart();
+        }
+        
+        document.getElementById('hard').onchange = function() {
+            hardIndex = this.value;
+        }
         
     </script>
    
