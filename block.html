@@ -74,10 +74,10 @@
             [[0, 0], [1, 0], [2, 0], [3, 0]],
             [[1, -1], [1, 0], [1, 1], [1, 2]],
             
-            [[0, 0], [1, 0], [1, 1], [1, 2]],
-            [[0, 0], [1, 0], [1, 1], [1, 2]],
-            [[0, 0], [1, 0], [1, 1], [1, 2]],
-            [[0, 0], [1, 0], [1, 1], [1, 2]],
+            [[0, 0], [1, 0], [0, 1], [1, 1]],
+            [[0, 0], [1, 0], [0, 1], [1, 1]],
+            [[0, 0], [1, 0], [0, 1], [1, 1]],
+            [[0, 0], [1, 0], [0, 1], [1, 1]],
             
             [[0, 0], [0, 1], [1, 1], [1, 2]],
             [[0, 1], [1, 1], [-1, 2], [0, 2]],
@@ -106,7 +106,10 @@
         );
         
         // y * 20 + x = index
-        var inGoing = false;
+        var width = 20;
+        var height = 30;
+        
+        var isGoing = false;
         var Hard = [1000,500,300,200,100,50];
         var hardIndex = 0;
         var cindex = 0; //记录方块状态0到27，总共28种状态
@@ -115,18 +118,23 @@
         var offset = [offsetX, offsetY];
         var B = new Array(); //保存当前激活的方块
         var timer = null;
+
         
         function cM() {
             var oDiv = "";
-            for (var i = 0; i < 20 * 30; i++) {
-                oDiv = document.createElement('div');
-                oDiv.className = 'block';
-                // if (i < 40)
-                //     oDiv.innerHTML = i;
-                oDiv.flag = 0;
-                oDiv.x = i % 20;
-                oDiv.y = parseInt(i / 20);
-                document.getElementById('content').appendChild(oDiv);
+            for (var i = 0; i < height; i++) {
+                // AB[i] = [];
+                for(var j = 0; j < width; j++) {
+                    oDiv = document.createElement('div');
+                    oDiv.className = 'block';
+                    oDiv.flag = 0;
+                    // oDiv.x = i % width;
+                    // oDiv.y = parseInt(i / width);
+                    oDiv.x = j;
+                    oDiv.y = i;
+                    document.getElementById('content').appendChild(oDiv);
+                    // AB[i].push([j, i]);
+                }
             }
         }
 
@@ -190,7 +198,7 @@
                         } else {
                             drawB(2);
                             clearRows();
-                            if(isGameOver()) {
+                            if(isGameOver(1)) {
                                 alert("game over");
                                 clearInterval(timer);
                                 document.onkeydown = null;
@@ -211,21 +219,82 @@
             }
         }
         
-        function isGameOver() {
-            for(let i=0;i<B.length;i++) {
-                if(B[i][1] == 0) {
-                    return true;
+        function isGameOver(type) {
+            let bs = document.getElementById('content').getElementsByTagName('div');
+            if(type == 0) { //刚生成的方块就发生了碰撞game over
+                for(let i=0;i<B.length;i++) {
+                    if(bs[B[i][1] * width + B[i][0]] .flag == 1) {
+                        return true;
+                    }
+                }
+            } else { //消行之后
+                for(let i=0;i<B.length;i++) {
+                    if(B[i][1] == 0) {
+                        return true;
+                    }
                 }
             }
             return false;
         }
         
-        
+        //消行
         function clearRows() {
-            // clearInterval('timer');
-            let cbs = document.getElementsByClassName('CB');
-            let len = cbs.length;
             
+            let cbs = document.getElementById('content').getElementsByClassName('CB');
+            let cbsLen = cbs.length;
+            let bs = document.getElementById('content').getElementsByTagName('div');
+            let clearLines = [];
+            let flag;
+            for(let i = (height - 1); i >= 0; i--) {
+                flag = true;
+                for(let j = 0; j < width; j++) {
+                    if(bs[i*width + j].flag != 1) {
+                        flag = false;
+                        break;
+                    }
+                }
+                if(flag) {
+                    clearLines.push(i);
+                }
+            }
+            // console.log(clearLines);
+            let newBlocks = [];
+            let line;
+            let isClear;
+            let y;
+            if(clearLines.length > 0) {
+                // clearInterval('timer');
+                for(let i = 0; i < cbsLen; i++) {
+                    line = 0;
+                    isClear = false;
+                    for(let j = 0; j < clearLines.length; j++) {
+                        if (cbs[i].y == clearLines[j]) {
+                            isClear = true;
+                            break;
+                        } else if(cbs[i].y < clearLines[j]) {
+                            line++;
+                        } else {
+                            break;
+                        }
+                    }
+                    if (!isClear) {
+                        y = cbs[i].y + line;
+                        newBlocks.push([cbs[i].x, y]);
+                    }
+                }
+
+                //重置地图
+                removeMap();
+                cM();
+
+                //绘制消行后的地址
+                newBlocks.forEach(function(item, index) {
+                    bs[item[1] * width + item[0]].className = "block CB";
+                    bs[item[1] * width + item[0]].flag = 1;
+                });
+                // timer = setInterval("move('d', 1)", Hard[hardIndex]);
+            }
+             
         }
         
         //手动下落
@@ -253,19 +322,19 @@
             switch (d) {
                 case "l":
                     for (var i = 0; i < B.length; i++) {
-                        if (B[i][0] == 0 || arr[B[i][1] * 20 + B[i][0] - 1].flag == 1)
+                        if (B[i][0] == 0 || arr[B[i][1] * width + B[i][0] - 1].flag == 1)
                             n++;
                     }
                     break;
                 case "r":
                     for (var i = 0; i < B.length; i++) {
-                        if (B[i][0] == 19 || arr[B[i][1] * 20 + B[i][0] + 1].flag == 1)
+                        if (B[i][0] == (width - 1) || arr[B[i][1] * width + B[i][0] + 1].flag == 1)
                             n++;
                     }
                     break;
                 case "d":
                     for (var i = 0; i < B.length; i++) {
-                        if (B[i][1] == 29 || arr[(B[i][1] + 1) * 20 + B[i][0]].flag == 1) {
+                        if (B[i][1] == (height - 1) || arr[(B[i][1] + 1) * width + B[i][0]].flag == 1) {
                             n++;
                         }
                     }
@@ -307,7 +376,7 @@
             for(var i = 0; i < b.length; i++) {
                 x = b[i][0];
                 y = b[i][1];
-                if (x > 19 || y > 29 || x < 0 || y < 0 || ablock[y * 20 + x].flag == 1) {
+                if (x > (width - 1) || y > (height - 1) || x < 0 || y < 0 || ablock[y * width + x].flag == 1) {
                     return false;
                 } 
             }
@@ -323,14 +392,31 @@
 
         //创建一个新的方块
         function createBlock() {
-            // cindex = parseInt(Math.random() * 27)
-            cindex = 12
+            cindex = parseInt(Math.random() * 27);
+            // cindex = 5;
             B = [];
             qCopy(arrAll[cindex], B);
+
+            var minY = offset[1];
+            B.forEach(function(item, index){ //不同的方块，起始偏移量不同
+                if(item[1] < minY) {
+                    minY = item[1];
+                }
+            });
+            offset[1] += -minY;
+
             for (var i = 0; i < B.length; i++) {
                 B[i][0] += offset[0];
                 B[i][1] += offset[1];
             }
+
+            // if(isGameOver(0)) {
+            //     alert("game over");
+            //     clearInterval(timer);
+            //     document.onkeydown = null;
+            //     return;
+            // }
+
             drawB(1);  
         }
 
@@ -338,17 +424,17 @@
             var arr = document.getElementById('content').getElementsByTagName('div');
             if (m == 1) { //画出当前激活的方块
                 for (var i = 0; i < B.length; i++) {
-                    arr[B[i][1] * 20 + B[i][0]].className = "block RB";
+                    arr[B[i][1] * width + B[i][0]].className = "block RB";
                 }
             } else if (m == 2) { //画出固定后的方块
                 for (var i = 0; i < B.length; i++) {
-                    arr[B[i][1] * 20 + B[i][0]].className = "block CB";
-                    arr[B[i][1] * 20 + B[i][0]].flag = 1;
+                    arr[B[i][1] * width + B[i][0]].className = "block CB";
+                    arr[B[i][1] * width + B[i][0]].flag = 1;
                 }
             } else { //擦除方块
                 for (var i = 0; i < B.length; i++) {
-                    arr[B[i][1] * 20 + B[i][0]].className = "block";
-                    arr[B[i][1] * 20 + B[i][0]].flag = 0;
+                    arr[B[i][1] * width + B[i][0]].className = "block";
+                    arr[B[i][1] * width + B[i][0]].flag = 0;
                 }
             }
         }
@@ -356,8 +442,7 @@
         
         function removeMap() {
             var content = document.getElementById("content");
-            while(content.hasChildNodes()) //当div下还存在子节点时 循环继续
-            {
+            while(content.hasChildNodes()) {
                 content.removeChild(content.firstChild);
             }
         }
