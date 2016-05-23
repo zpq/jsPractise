@@ -101,8 +101,8 @@
             
             [[0, 0], [1, 0], [0, 1], [0, 2]],
             [[-1, 1], [0, 1], [1, 1], [1, 2]],
-            [[0, 0], [0, 1], [1, 2], [0, 2]],
-            [[-1, 2], [-1, -1], [0, 1], [1, 1]]
+            [[0, 0], [0, 1], [-1, 2], [0, 2]],
+            [[-1, 0], [-1, 1], [0, 1], [1, 1]]
         );
         
         // y * 20 + x = index
@@ -161,10 +161,11 @@
         }
         
         function move(d, auto) {
-            drawB(0);
+            
             switch (d) {
                 case 'l':
                     if (!isHit('l')) {
+                        drawB(0);
                         for (var i = 0; i < B.length; i++) {
                             B[i][0]--;
                         }
@@ -174,6 +175,7 @@
                     break;
                 case 'r':
                     if (!isHit('r')) {
+                        drawB(0);
                         for (var i = 0; i < B.length; i++) {
                             B[i][0]++;
                         }
@@ -182,6 +184,7 @@
                     }
                     break;
                 case 'd':
+                drawB(0);
                     if (!auto) { //非自动下落时
                         moveDown();
                         drawB(2);
@@ -211,6 +214,7 @@
                     }
                     break;
                 case 'u':
+                drawB(0);
                     rotate();
                     drawB(1);
                     break;
@@ -304,9 +308,10 @@
         //
         function addPoints(points) {
             var p = document.getElementById('points');
-            if (!isNaN) {
+            if (!isNaN(points)) {
                 p.innerHTML = parseInt(p.innerHTML) + parseInt(points);
-            }  
+            }
+        }  
         
         //手动下落
         function moveDown() {
