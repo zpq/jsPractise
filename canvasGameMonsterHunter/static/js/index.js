@@ -152,7 +152,7 @@ var makeBullet = function(owner) {
     }
     ob = makeBulletHandler(ob, owner);
     owner.bullets.push(ob);
-    ctx.drawImage(ob.image, 200, 200)
+    ctx.drawImage(ob.image, b.x, b.y)
 }
 
 var update = function(direction) {
