@@ -1,0 +1,59 @@
+<script>
+
+
+    function highlightAll(keyWords) { 
+        document.getElementById('hid_search_text').value = keyWords; 
+        document.designMode = "on"; 
+        var sel = window.getSelection(); 
+        sel.collapse(document.body, 0);
+        while (window.find(keyWords)) { 
+            document.execCommand("HiliteColor", false, "red"); 
+            sel.collapseToEnd(); 
+        }
+        document.designMode = "off";
+        goTop(keyWords,1); 
+    }
+
+    function removeHighLight() { 
+        var keyWords = document.getElementById('hid_search_text').value; 
+        document.designMode = "on"; 
+        var sel = window.getSelection(); 
+        sel.collapse(document.body, 0);
+        while (window.find(keyWords)) { 
+            document.execCommand("HiliteColor", false, "transparent"); 
+            sel.collapseToEnd(); 
+        }
+        document.designMode = "off"; 
+        goTop(keyWords,0); 
+    }
+
+    function goTop(keyWords,findFirst) { 
+        if(window.document.location.href = '#') { 
+            if(findFirst) { 
+                window.find(keyWords, 0, 0, 1);
+            }
+        }
+    }
+    </script>
+
+    <style>
+    #search_para {
+     color:grey;
+    }
+    .highlight {
+     background-color: #FF6; 
+    }
+    </style>
+
+    <div id="wrapper">
+        <input type="text" id="search_text" name="search_text"> &nbsp; 
+        <input type="hidden" id="hid_search_text" name="hid_search_text"> 
+        <input type="button" value="search" id="search" onclick="highlightAll(document.getElementById('search_text').value)" >  &nbsp; 
+        <input type="button" value="remove" id="remove" onclick="removeHighLight()" >  &nbsp; 
+        <div>
+            <p id="search_para">The European languages are members of the same family. Their separate existence is a myth. For science, music, sport, etc, Europe uses the same vocabulary. The languages only differ in their grammar, their pronunciation and their most common words. Everyone realizes why a new common language would be desirable: one could refuse to pay expensive translators. To achieve this, it would be necessary to have uniform grammar, pronunciation and more common words. If several languages coalesce, the grammar of the resulting language is more simple and regular than that of the individual languages. The new common language will be more simple and regular than the existing European languages.<br/><span style="font-size: 20px;color:red;">使用js模拟浏览器的ctrl+f功能</span></p>
+        </div>
+    </div>
+
+
+
